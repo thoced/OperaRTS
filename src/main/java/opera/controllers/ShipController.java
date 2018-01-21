@@ -1,4 +1,4 @@
-package com.jme.example.controllers;
+package opera.controllers;
 
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;

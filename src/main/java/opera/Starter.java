@@ -1,4 +1,4 @@
-package com.jme.example;
+package opera;
 
 import com.jme3.system.AppSettings;
 import javafx.application.Application;

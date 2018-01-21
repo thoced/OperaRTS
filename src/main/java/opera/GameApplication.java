@@ -1,6 +1,6 @@
-package com.jme.example;
+package opera;
 
-import com.jme.example.controllers.ShipController;
+import opera.controllers.ShipController;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.bounding.BoundingSphere;
@@ -14,11 +14,9 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.LightProbe;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
@@ -27,11 +25,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.TextureCubeMap;
 import com.jme3.util.SkyFactory;
 import com.ss.editor.extension.loader.SceneLoader;
-
-
 
 
 import java.util.ArrayList;
