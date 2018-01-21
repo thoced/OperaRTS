@@ -6,7 +6,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
 import javafx.scene.control.Control;
 
-public class ShipController extends AbstractControl {
+public class ShipController extends ShipBaseController {
 
     private boolean doMove = false;
 

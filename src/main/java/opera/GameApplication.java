@@ -1,5 +1,7 @@
 package opera;
 
+import opera.appstates.ShipManagerAppState;
+import opera.appstates.ShipManagerAppState;
 import opera.controllers.ShipController;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
@@ -49,22 +51,19 @@ public class GameApplication extends SimpleApplication implements ActionListener
     @Override
     public void simpleInitApp() {
 
-
-
         FilterPostProcessor fp = new FilterPostProcessor(this.getAssetManager());
 
         SceneLoader.install(this,fp);
 
-        Spatial map = assetManager.loadModel("Scenes/operaScene01.j3s");
-        map.setShadowMode(RenderQueue.ShadowMode.Receive);
-        rootNode.attachChild(map);
+       // Spatial map = assetManager.loadModel("Scenes/operaScene01.j3s");
+       // map.setShadowMode(RenderQueue.ShadowMode.Receive);
+       // rootNode.attachChild(map);
 
         shipBase = assetManager.loadModel("Modeles/spaceship01/vaisseau01.j3o");
 
         Spatial sky = SkyFactory.createSky(assetManager, "textures/Environnement/Space01/tycho_cyl_glow.png", SkyFactory.EnvMapType.EquirectMap);
         rootNode.attachChild(sky);
         //rootNode.getChild(0).setCullHint(Spatial.CullHint.Always);
-
 
         sun = new DirectionalLight();
         sun.setColor(ColorRGBA.LightGray);
@@ -84,17 +83,13 @@ public class GameApplication extends SimpleApplication implements ActionListener
         this.getInputManager().addListener(this,"moveAvatar");
         this.getInputManager().addListener(this,"mouseClic");
 
-
-                this.createShip(new Vector3f(0,0,0));
-
-
-
-
-       this.createLightProbe(this.rootNode,this.getStateManager());
+        this.createLightProbe(this.rootNode,this.getStateManager());
 
         this.getInputManager().setCursorVisible(true);
         this.getFlyByCamera().setDragToRotate(true);
 
+        // AppState
+        this.getStateManager().attach(new ShipManagerAppState());
 
     }
 

@@ -7,11 +7,13 @@ import java.util.HashMap;
 
 public class SpatialModels{
 
-    private static SpatialModels instance;
+    private static SpatialModels instance = null;
 
     private AssetManager assetManager;
 
     private HashMap<String,Spatial> spatialMap;
+
+    public static final String MODEL_SHIP_01 = "Modeles/spaceship01/vaisseau01.j3o";
 
     private  SpatialModels() {
 
@@ -29,10 +31,12 @@ public class SpatialModels{
 
     public void prepareSpatials(AssetManager assetManager){
         this.assetManager = assetManager;
-
-        Spatial s = this.assetManager.loadModel("Modeles/spaceship01/vaisseau01.j3o");
-        spatialMap.put("SHIP01",s);
+        Spatial s = this.assetManager.loadModel(MODEL_SHIP_01);
+        spatialMap.put(MODEL_SHIP_01,s);
 
     }
 
+    public HashMap<String, Spatial> getSpatialMap() {
+        return spatialMap;
+    }
 }
