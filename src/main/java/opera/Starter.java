@@ -13,7 +13,7 @@ public class Starter extends Application {
 
         final AppSettings settings = new AppSettings(true);
         settings.setResolution(1024, 768);
-        settings.setFullscreen(false);
+        settings.setFullscreen(true);
         settings.setFrameRate(90);
         settings.setGammaCorrection(true);
 

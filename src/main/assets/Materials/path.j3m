@@ -1,0 +1,12 @@
+Material MyMaterial : Common/MatDefs/Misc/Unshaded.j3md {
+    MaterialParameters {
+        VertexColor : false
+        PointSize : 1.0
+        BackfaceShadows : false
+        ColorMap : Flip WrapEdgeClamp_T WrapEdgeClamp_S MagBilinear MinBilinearNoMipMaps textures/utils/path.png
+    }
+    AdditionalRenderState {
+      Blend Alpha
+      FaceCull Off
+    }
+}

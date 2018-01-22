@@ -1,0 +1,11 @@
+Material MyMaterial : Common/MatDefs/Misc/Unshaded.j3md {
+    MaterialParameters {
+        BackfaceShadows : false
+        ColorMap : Flip WrapRepeat_T WrapRepeat_S MagBilinear MinBilinearNoMipMaps textures/utils/select.png
+        PointSize : 1.0
+    }
+    AdditionalRenderState {
+      Blend AlphaAdditive
+      FaceCull Off
+    }
+}
