@@ -14,6 +14,8 @@ public class SpatialModels{
     private HashMap<String,Spatial> spatialMap;
 
     public static final String MODEL_SHIP_01 = "Modeles/spaceship01/vaisseau01.j3o";
+    public static final String MODEL_PATH = "Modeles/utils/path/path.j3o";
+    public static final String MODEL_SELECT = "Modeles/utils/select/select.j3o";
 
     private  SpatialModels() {
 
@@ -33,6 +35,10 @@ public class SpatialModels{
         this.assetManager = assetManager;
         Spatial s = this.assetManager.loadModel(MODEL_SHIP_01);
         spatialMap.put(MODEL_SHIP_01,s);
+        s = this.assetManager.loadModel(MODEL_PATH);
+        spatialMap.put(MODEL_PATH,s);
+        s = this.assetManager.loadModel(MODEL_SELECT);
+        spatialMap.put(MODEL_SELECT,s);
 
     }
 
