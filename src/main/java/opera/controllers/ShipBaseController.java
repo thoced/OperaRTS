@@ -1,17 +1,26 @@
 package opera.controllers;
 
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.control.Control;
+
 
 import java.io.IOException;
 
-public class ShipBaseController extends AbstractControl {
+public abstract class ShipBaseController extends AbstractControl {
 
+    protected boolean selected = false;
+
+    protected Spatial selectSpatial = null;
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
 
     @Override
     protected void controlUpdate(float tpf) {
