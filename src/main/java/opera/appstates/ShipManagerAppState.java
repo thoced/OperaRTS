@@ -5,12 +5,16 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.material.Material;
+import com.jme3.math.Plane;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import javafx.scene.input.MouseButton;
+import com.jme3.scene.control.BillboardControl;
+import com.jme3.scene.shape.Quad;
 import opera.controllers.ShipBaseController;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -38,7 +42,7 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener 
 
     private Node rootNodeShipEnnemy;
 
-    private SelectedShips selectedShips;
+    private SelectedShips selectedShips = new SelectedShips();
 
     @Override
     protected void initialize(Application app) {
@@ -59,6 +63,8 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener 
         // preparation des inputs
         simpleApplication.getInputManager().addMapping("MOUSELEFT",new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         simpleApplication.getInputManager().addListener(this,"MOUSELEFT");
+        simpleApplication.getInputManager().addMapping("MOUSERIGHT",new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        simpleApplication.getInputManager().addListener(this,"MOUSERIGHT");
     }
 
     @Override
@@ -95,7 +101,6 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener 
     }
 
     /**
-     *
      * @param name - nom de l'action
      * @param isPressed - si le bouton est pressé
      * @param tpf - temps écoulé entre deux frames
@@ -104,17 +109,47 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener 
     public void onAction(String name, boolean isPressed, float tpf) {
 
         if(name.equals("MOUSELEFT") && isPressed){
+            selectedShips.clear();
             selectedShips = selectShip();
+        }
 
+        if(name.equals("MOUSERIGHT") && isPressed){
+            if(selectedShips != null && selectShip().size() > 0){
+                moveShips(selectedShips);
+            }
         }
     }
 
     /**
-     * @return Vaisseaux sélectionnés
      *
+     * @param selectedShips - liste des vaisseaux selectionnés
+     */
+    private void moveShips(SelectedShips selectedShips) {
+        Vector2f screen2d = simpleApplication.getInputManager().getCursorPosition();
+        Vector3f screen3d = simpleApplication.getCamera().getWorldCoordinates(screen2d,0);
+        Vector3f dir = simpleApplication.getCamera().getWorldCoordinates(screen2d,1f).clone();
+        // placement d'un quad temporaire permettant d'effectuer la première recherche en profondeur sur l'axe du vai sseau
+        ShipBaseController ship = (ShipBaseController) selectedShips.get(0);
+        Plane plane = new Plane();
+        plane.setOriginNormal(ship.getSpatial().getLocalTranslation(),Vector3f.UNIT_Y);
+        Ray r = new Ray(screen3d,dir);
+
+        Vector3f contactPoint = new Vector3f();
+        if(r.intersectsWherePlane(plane,contactPoint))
+        {
+            Spatial path = SpatialModels.getInstance().getSpatialMap().get(SpatialModels.MODEL_PATH).clone();
+            path.setLocalTranslation(contactPoint);
+            rootNodeShipOwner.attachChild(path);
+
+        }
+
+
+    }
+
+    /**
+     * @return Vaisseaux sélectionnés
      */
     private SelectedShips selectShip(){
-        SelectedShips shipsSelected = new SelectedShips();
         Vector2f screen2d = simpleApplication.getInputManager().getCursorPosition();
         Vector3f screen3d = simpleApplication.getCamera().getWorldCoordinates(screen2d,0);
         Vector3f dir = simpleApplication.getCamera().getWorldCoordinates(screen2d,1f).clone().normalize();
@@ -124,9 +159,9 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener 
         CollisionResults results = new CollisionResults();
           for(ShipBaseController sc : listShipOwner) {
               if (sc.getSpatial().collideWith(r, results) > 0) {
-                  shipsSelected.add(sc);
+                  selectedShips.add(sc);
               }
           }
-          return shipsSelected;
+          return selectedShips;
     }
 }
