@@ -1,20 +1,17 @@
 package opera.appstates;
 
-import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
-import com.jme3.math.Plane;
-import com.jme3.math.Ray;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.BillboardControl;
-import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.Line;
 import opera.controllers.ShipBaseController;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -22,7 +19,6 @@ import com.jme3.app.state.BaseAppState;
 import opera.controllers.ShipController;
 import opera.modeles.SelectedShips;
 import opera.modeles.SpatialModels;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +26,7 @@ import java.util.List;
    AppState qui gère les vaisseaux (ajout, suppression, sélection, ordre)
  */
 
-public class ShipManagerAppState extends BaseAppState implements ActionListener {
+public class ShipManagerAppState extends BaseAppState implements ActionListener,AnalogListener {
 
     private SimpleApplication simpleApplication;
 
@@ -43,6 +39,10 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener 
     private Node rootNodeShipEnnemy;
 
     private SelectedShips selectedShips = new SelectedShips();
+
+    private Vector3f positionDestinatinoXZ = new Vector3f();
+    private Vector3f positionDestinatinonY = new Vector3f();
+    private boolean  searchDestinationZ = false;
 
     @Override
     protected void initialize(Application app) {
@@ -83,7 +83,6 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener 
     }
 
     /**
-     *
      * @param pos - position du vaisseaux
      */
     private void createShipTest(Vector3f pos){
@@ -113,37 +112,88 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener 
             selectedShips = selectShip();
         }
 
-        if(name.equals("MOUSERIGHT") && isPressed){
+        if(name.equals("MOUSERIGHT") && isPressed && !searchDestinationZ){
             if(selectedShips != null && selectShip().size() > 0){
-                moveShips(selectedShips);
+                searchDestinationXZ(selectedShips);
             }
         }
+
+        if(name.equals("MOUSERIGHT") && !isPressed && searchDestinationZ){
+            if(selectedShips != null && selectShip().size() > 0){
+                searchDestinationY(selectedShips,positionDestinatinoXZ);
+            }
+        }
+    }
+
+    @Override
+    public void onAnalog(String name, float value, float tpf) {
+
+    }
+
+    /**
+     *
+     * @param selectedShips liste des vaisseaux sélectionnés
+     * @param destinationXY destination en profondeur sur le plan du vaisseau déja déterminée
+     */
+    private void searchDestinationY(SelectedShips selectedShips,Vector3f destinationXY) {
+        ShipBaseController ship = (ShipBaseController) selectedShips.get(0);
+        Plane plane = new Plane();
+        Vector3f planeNormal = ship.getSpatial().getWorldTranslation().clone().subtract(destinationXY).normalize();
+        plane.setOriginNormal(destinationXY,planeNormal);
+        Vector2f screen2d = simpleApplication.getInputManager().getCursorPosition();
+        Vector3f start = simpleApplication.getCamera().getLocation().clone();
+        Vector3f end = simpleApplication.getCamera().getWorldCoordinates(screen2d,1f).clone();
+        Vector3f diff = end.subtract(start);
+        diff.normalizeLocal();
+        Ray r = new Ray(start,diff);
+        if(r.intersectsWherePlane(plane,positionDestinatinonY)){
+            positionDestinatinonY.x = destinationXY.x;
+            positionDestinatinonY.z = destinationXY.z;
+            Spatial path = SpatialModels.getInstance().getSpatialMap().get(SpatialModels.MODEL_PATH_FINAL).clone();
+            BillboardControl bc = new BillboardControl();
+            bc.setAlignment(BillboardControl.Alignment.Camera);
+            path.addControl(bc);
+            path.setLocalTranslation(positionDestinatinonY);
+            rootNodeShipOwner.attachChild(path);
+            Line line = new Line(destinationXY,positionDestinatinonY);
+            Geometry geo = new Geometry();
+            Material mat = new Material(simpleApplication.getAssetManager(),"Common/MatDefs/Misc/Unshaded.j3md");
+            mat.setColor("Color", ColorRGBA.Yellow);
+            geo.setMaterial(mat);
+            geo.setMesh(line);
+            rootNodeShipOwner.attachChild(geo);
+        }
+        searchDestinationZ = false;
     }
 
     /**
      *
      * @param selectedShips - liste des vaisseaux selectionnés
      */
-    private void moveShips(SelectedShips selectedShips) {
+    private void searchDestinationXZ(SelectedShips selectedShips) {
         Vector2f screen2d = simpleApplication.getInputManager().getCursorPosition();
-        Vector3f screen3d = simpleApplication.getCamera().getWorldCoordinates(screen2d,0);
-        Vector3f dir = simpleApplication.getCamera().getWorldCoordinates(screen2d,1f).clone();
-        // placement d'un quad temporaire permettant d'effectuer la première recherche en profondeur sur l'axe du vai sseau
+        Vector3f start = simpleApplication.getCamera().getLocation().clone();
+        Vector3f end = simpleApplication.getCamera().getWorldCoordinates(screen2d,1f).clone();
+        Vector3f diff = end.subtract(start);
+        diff.normalizeLocal();
+        // placement d'un plane temporaire permettant d'effectuer la première recherche en profondeur sur l'axe du vai sseau
         ShipBaseController ship = (ShipBaseController) selectedShips.get(0);
         Plane plane = new Plane();
         plane.setOriginNormal(ship.getSpatial().getLocalTranslation(),Vector3f.UNIT_Y);
-        Ray r = new Ray(screen3d,dir);
-
-        Vector3f contactPoint = new Vector3f();
-        if(r.intersectsWherePlane(plane,contactPoint))
-        {
+        Ray r = new Ray(start,diff);
+        if(r.intersectsWherePlane(plane,positionDestinatinoXZ)){
             Spatial path = SpatialModels.getInstance().getSpatialMap().get(SpatialModels.MODEL_PATH).clone();
-            path.setLocalTranslation(contactPoint);
+            path.setLocalTranslation(positionDestinatinoXZ);
             rootNodeShipOwner.attachChild(path);
-
+            Line line = new Line(ship.getSpatial().getWorldTranslation(),positionDestinatinoXZ);
+            Geometry geo = new Geometry();
+            Material mat = new Material(simpleApplication.getAssetManager(),"Common/MatDefs/Misc/Unshaded.j3md");
+            mat.setColor("Color", ColorRGBA.Blue);
+            geo.setMaterial(mat);
+            geo.setMesh(line);
+            rootNodeShipOwner.attachChild(geo);
+            searchDestinationZ = true;
         }
-
-
     }
 
     /**
@@ -164,4 +214,5 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener 
           }
           return selectedShips;
     }
+
 }
