@@ -70,7 +70,7 @@ public class GameApplication extends SimpleApplication implements ActionListener
         sun.setDirection(new Vector3f(-.5f,-.2f,-.5f).normalizeLocal());
         // this.rootNode.addLight(sun);
 
-        this.getFlyByCamera().setMoveSpeed(32f);
+        this.getFlyByCamera().setMoveSpeed(128f);
 
         this.getInputManager().addMapping("toggleFullScreen",new KeyTrigger(KeyInput.KEY_F));
         this.getInputManager().addMapping("toggleResolution",new KeyTrigger(KeyInput.KEY_R));
