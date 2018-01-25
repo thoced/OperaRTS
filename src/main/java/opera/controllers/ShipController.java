@@ -30,9 +30,8 @@ public class ShipController extends ShipBaseController {
             selectSpatial = SpatialModels.getInstance().getSpatialMap().get(SpatialModels.MODEL_SELECT).clone();
             BillboardControl bc = new BillboardControl();
             bc.setAlignment(BillboardControl.Alignment.Camera);
-            selectSpatial.addControl(bc);
             selectSpatial.setLocalScale(3.5f);
-            selectSpatial.setLocalTranslation(this.getSpatial().getWorldTranslation());
+            selectSpatial.addControl(bc);
             ((Node) this.getSpatial()).attachChild(selectSpatial);
         }else{
             if(selectSpatial != null) {

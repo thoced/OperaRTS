@@ -52,6 +52,7 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener,
         listShipEnnemy = new ArrayList<ShipBaseController>();
         // creation des nodes owner et ennemy
         rootNodeShipOwner = new Node();
+        rootNodeShipOwner.setLocalTranslation(0,0,0);
         rootNodeShipOwner.setCullHint(Spatial.CullHint.Never);
         rootNodeShipEnnemy = new Node();
         rootNodeShipEnnemy.setCullHint(Spatial.CullHint.Never);
@@ -59,7 +60,7 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener,
         simpleApplication.getRootNode().attachChild(rootNodeShipEnnemy);
         // preparation des spatials
         SpatialModels.getInstance().prepareSpatials(simpleApplication.getAssetManager());
-        createShipTest(new Vector3f(0,0,0));
+        createShipTest(new Vector3f(0,20,0));
         // preparation des inputs
         simpleApplication.getInputManager().addMapping("MOUSELEFT",new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         simpleApplication.getInputManager().addListener(this,"MOUSELEFT");
@@ -201,11 +202,13 @@ public class ShipManagerAppState extends BaseAppState implements ActionListener,
      */
     private SelectedShips selectShip(){
         Vector2f screen2d = simpleApplication.getInputManager().getCursorPosition();
-        Vector3f screen3d = simpleApplication.getCamera().getWorldCoordinates(screen2d,0);
-        Vector3f dir = simpleApplication.getCamera().getWorldCoordinates(screen2d,1f).clone().normalize();
+        Vector3f start = simpleApplication.getCamera().getLocation().clone();
+        Vector3f end = simpleApplication.getCamera().getWorldCoordinates(screen2d,1f).clone();
+        Vector3f diff = end.subtract(start);
+        diff.normalizeLocal();
         Ray r = new Ray();
-        r.setOrigin(screen3d);
-        r.setDirection(dir);
+        r.setOrigin(start);
+        r.setDirection(diff);
         CollisionResults results = new CollisionResults();
           for(ShipBaseController sc : listShipOwner) {
               if (sc.getSpatial().collideWith(r, results) > 0) {
